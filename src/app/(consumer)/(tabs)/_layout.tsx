@@ -1,4 +1,5 @@
 import { TabIcon } from "@/src/components/tab-icon.component";
+import { Icons } from "@/src/constants/icons.constants";
 import { Tabs } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import React from "react";
@@ -11,10 +12,11 @@ const ConsumerTabsLayout = () => {
         screenOptions={{
           tabBarShowLabel: false,
           tabBarStyle: {
-            backgroundColor: "#FFFFFF",
+            backgroundColor: "#0d203b",
             position: "absolute",
-            borderTopColor: "#0061FF1A",
+            borderTopColor: "#FFFFFF80",
             height: 70,
+            alignItems: "center",
           },
         }}
       >
@@ -25,7 +27,7 @@ const ConsumerTabsLayout = () => {
             title: "Home",
             headerShown: false,
             tabBarIcon: ({ focused }: { focused: boolean }) => (
-              <TabIcon focused={focused} title="Home" />
+              <TabIcon focused={focused} title="Home" icon={Icons.home_icon} />
             ),
           }}
         />
@@ -37,7 +39,11 @@ const ConsumerTabsLayout = () => {
             title: "History",
             headerShown: false,
             tabBarIcon: ({ focused }: { focused: boolean }) => (
-              <TabIcon focused={focused} title="History" />
+              <TabIcon
+                focused={focused}
+                title="History"
+                icon={Icons.history_icon}
+              />
             ),
           }}
         />

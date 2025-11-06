@@ -11,14 +11,14 @@ export const TabIcon = ({
   title: string;
   indicatorNumber?: number;
 }) => {
-  const iconSize = focused ? 20 : 18;
+  const iconSize = focused ? 25 : 23;
 
   return (
     <View className="flex-1 mt-3 flex flex-col items-center ">
       {icon && (
         <Image
           source={icon}
-          tintColor={focused ? "#22d3ee" : "#666876"}
+          tintColor={focused ? "#359EFF" : "#359EFF70"}
           style={{ width: iconSize, height: iconSize }}
           contentFit="contain"
         />
@@ -26,8 +26,8 @@ export const TabIcon = ({
       <Text
         className={`${
           focused
-            ? "text-cyan-400 font-poppins-medium"
-            : "text-black-200 font-poppins-regular"
+            ? "text-primary font-poppins-medium"
+            : "text-primary/70 font-poppins-regular"
         } text-xs w-full text-center mt-1`}
       >
         {title}

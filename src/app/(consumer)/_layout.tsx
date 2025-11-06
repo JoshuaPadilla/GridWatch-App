@@ -4,9 +4,12 @@ import React, { useEffect } from "react";
 
 const ConsumerLayout = () => {
   const { sensorId } = useLocalSearchParams<{ sensorId: string }>();
+  console.log(sensorId);
 
   useEffect(() => {
+    console.log("here");
     if (!sensorId) return;
+    console.log("here after");
 
     if (!socket.connected) {
       socket.connect();
