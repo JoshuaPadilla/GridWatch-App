@@ -1,21 +1,19 @@
 import socket from "@/src/lib/socket";
-import { Stack, useLocalSearchParams } from "expo-router";
+import { useDeviceStore } from "@/src/stores/device.store";
+import { Stack } from "expo-router";
 import React, { useEffect } from "react";
 
 const ConsumerLayout = () => {
-  const { sensorId } = useLocalSearchParams<{ sensorId: string }>();
-  console.log(sensorId);
+  const { deviceId } = useDeviceStore();
 
   useEffect(() => {
-    console.log("here");
-    if (!sensorId) return;
-    console.log("here after");
+    if (!deviceId) return;
 
     if (!socket.connected) {
       socket.connect();
 
       console.log("Socket connected globally in RootLayout");
-      socket.emit("connectDevice", { sensorId: sensorId });
+      socket.emit("connectDevice", { sensorId: deviceId });
     }
 
     return () => {
@@ -24,7 +22,7 @@ const ConsumerLayout = () => {
         console.log("Socket disconnected globally in RootLayout");
       }
     };
-  }, [sensorId]);
+  }, [deviceId]);
 
   return (
     <Stack screenOptions={{ headerShown: false }}>

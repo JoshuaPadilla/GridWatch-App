@@ -8,17 +8,21 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useDeviceStore } from "../stores/device.store";
 
 export default function Index() {
-  const [sensorId, setSensorId] = useState("");
+  const { setDeviceId } = useDeviceStore();
+
+  const [inputDeviceId, setInputDeviceId] = useState("");
 
   const handleSubmit = () => {
-    if (!sensorId.trim()) console.log("Enter sensor id");
+    if (inputDeviceId) {
+      setDeviceId(inputDeviceId);
 
-    router.push({
-      pathname: "/(consumer)/(tabs)/home",
-      params: { sensorId },
-    });
+      router.push({
+        pathname: "/(consumer)/(tabs)/home",
+      });
+    }
   };
 
   return (
@@ -27,8 +31,8 @@ export default function Index() {
         <View className="gap-2 p-2 w-[80%]">
           <Text className="text-white">Enter Device ID:</Text>
           <TextInput
-            value={sensorId}
-            onChangeText={(text) => setSensorId(text)}
+            value={inputDeviceId}
+            onChangeText={(text) => setInputDeviceId(text)}
             className="border border-white rounded-md px-2 color-white"
           />
         </View>

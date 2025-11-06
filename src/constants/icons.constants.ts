@@ -2,6 +2,9 @@ import { ImageSourcePropType } from "react-native";
 import current_icon from "../../assets/icons/current_icon.png";
 import grid_status from "../../assets/icons/grid_status.png";
 import history_icon from "../../assets/icons/history_icon.png";
+import history_status_outage from "../../assets/icons/history_status_outage.png";
+import history_status_restored from "../../assets/icons/history_status_restored.png";
+import history_status_warning from "../../assets/icons/history_status_warning.png";
 import home_icon from "../../assets/icons/home_icon.png";
 import location_icon from "../../assets/icons/location_icon.png";
 import notif_icon from "../../assets/icons/notif_icon.png";
@@ -21,6 +24,9 @@ interface IconsState {
   grid_status: ImageSourcePropType;
   voltage_icon: ImageSourcePropType;
   current_icon: ImageSourcePropType;
+  history_status_outage: ImageSourcePropType;
+  history_status_restored: ImageSourcePropType;
+  history_status_warning: ImageSourcePropType;
 }
 
 export const Icons: IconsState = {
@@ -34,4 +40,7 @@ export const Icons: IconsState = {
   grid_status,
   voltage_icon,
   current_icon,
+  history_status_outage,
+  history_status_restored,
+  history_status_warning,
 };
