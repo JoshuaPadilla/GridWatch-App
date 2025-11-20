@@ -1,26 +1,51 @@
 import { payload } from "@/dev-data/payload-data";
 import { Icons } from "@/src/constants/icons.constants";
 import socket from "@/src/lib/socket";
+import { useDeviceStore } from "@/src/stores/device.store";
 import { Image } from "expo-image";
-import { useLocalSearchParams } from "expo-router";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { LineChart } from "react-native-gifted-charts";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const Home = () => {
-  const { sensorId } = useLocalSearchParams<{ sensorId: string }>();
+  const { setDeviceId, deviceId } = useDeviceStore();
+  const [current, setCurrent] = useState("");
+  const [voltage, setVoltage] = useState("");
+  // const [updateTimer, setUpdateTimer] = useState(0);
+
+  // useEffect(() => {
+  //   // Start the interval
+  //   const intervalId = setInterval(() => {
+  //     // Use the functional update form to get the latest state
+  //     setUpdateTimer((prevSeconds) => prevSeconds + 1);
+  //   }, 1000); // 1000ms = 1 second
+
+  //   // Return the cleanup function
+  //   return () => {
+  //     clearInterval(intervalId);
+  //   };
+  // }, []);
 
   useEffect(() => {
+    if (deviceId) {
+      socket.emit("connectDevice", { deviceId });
+    }
+  }, [deviceId]);
+
+  // console.log(updateTimer);
+  useEffect(() => {
     socket.on(`sensorPayload`, (data) => {
-      console.log(data);
+      setCurrent(data.current);
+      setVoltage(data.voltage);
+      // setUpdateTimer(0);
     });
-  }, [sensorId]);
+  }, []);
 
   const voltageMockData = payload.map((data) => ({ value: data.voltage }));
 
   return (
-    <SafeAreaView className="flex-1 bg-background p-6 gap-4">
+    <SafeAreaView className="flex-1 bg-background p-4 gap-4">
       {/* Header */}
       <View className="flex-row justify-between mb-4">
         <View className="flex-row gap-2 items-center">
@@ -93,7 +118,7 @@ const Home = () => {
             </View>
 
             <Text className="text-4xl text-white">
-              235 <Text className="text-white text-xl">volts</Text>
+              {voltage} <Text className="text-white text-xl">volts</Text>
             </Text>
           </View>
 
@@ -109,7 +134,7 @@ const Home = () => {
             </View>
 
             <Text className="text-4xl text-white">
-              235 <Text className="text-white text-xl">amps</Text>
+              {current} <Text className="text-white text-xl">amps</Text>
             </Text>
           </View>
         </View>

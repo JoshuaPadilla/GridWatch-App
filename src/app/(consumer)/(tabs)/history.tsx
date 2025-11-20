@@ -1,12 +1,12 @@
 import NotificationCard from "@/src/components/notification-card.component";
 import { useDeviceStore } from "@/src/stores/device.store";
 import React, { useEffect } from "react";
+import { Text } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const History = () => {
   const { getDeviceHistory, deviceId, deviceHistory } = useDeviceStore();
-  console.log(deviceHistory);
-
+  console.log(deviceId);
   useEffect(() => {
     if (deviceId) {
       getDeviceHistory(deviceId);
@@ -14,7 +14,8 @@ const History = () => {
   }, [getDeviceHistory, deviceId]);
 
   return (
-    <SafeAreaView className=" flex-1 p-6 bg-background">
+    <SafeAreaView className=" flex-1 p-4 bg-background gap-2">
+      <Text className="font-bold text-white text-2xl gap-4">History</Text>
       {deviceHistory.length > 0 &&
         deviceHistory.map((history, idx) => (
           <NotificationCard history={history} key={idx} />
