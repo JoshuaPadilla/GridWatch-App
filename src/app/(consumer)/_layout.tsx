@@ -10,6 +10,7 @@ const ConsumerLayout = () => {
     if (!deviceId) return;
 
     if (!socket.connected) {
+      console.log("heree");
       socket.connect();
 
       console.log("Socket connected globally in RootLayout");
@@ -27,6 +28,7 @@ const ConsumerLayout = () => {
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      <Stack.Screen name="(screens)" options={{ headerShown: false }} />
     </Stack>
   );
 };

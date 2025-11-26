@@ -3,6 +3,7 @@ import { Icons } from "@/src/constants/icons.constants";
 import socket from "@/src/lib/socket";
 import { useDeviceStore } from "@/src/stores/device.store";
 import { Image } from "expo-image";
+import { router } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { LineChart } from "react-native-gifted-charts";
@@ -42,6 +43,10 @@ const Home = () => {
     });
   }, []);
 
+  const handleGoToNotifications = () => {
+    router.push("/notifications");
+  };
+
   const voltageMockData = payload.map((data) => ({ value: data.voltage }));
 
   return (
@@ -57,7 +62,7 @@ const Home = () => {
           <Text className="text-white text-xl">Brgy Rawis</Text>
         </View>
 
-        <TouchableOpacity>
+        <TouchableOpacity onPress={handleGoToNotifications}>
           <Image source={Icons.notif_icon} style={{ width: 25, height: 25 }} />
         </TouchableOpacity>
       </View>
