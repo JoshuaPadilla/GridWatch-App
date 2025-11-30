@@ -1,7 +1,8 @@
-import { payload } from "@/dev-data/payload-data";
 import { Icons } from "@/src/constants/icons.constants";
+import { Device } from "@/src/interfaces/device.interface";
 import socket from "@/src/lib/socket";
 import { useDeviceStore } from "@/src/stores/device.store";
+import { usePayloadStore } from "@/src/stores/usePayloadStore";
 import { Image } from "expo-image";
 import { router } from "expo-router";
 import React, { useEffect, useState } from "react";
@@ -10,9 +11,18 @@ import { LineChart } from "react-native-gifted-charts";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const Home = () => {
-  const { setDeviceId, deviceId } = useDeviceStore();
-  const [current, setCurrent] = useState("");
-  const [voltage, setVoltage] = useState("");
+  const { deviceId, getDeviceDetails } = useDeviceStore();
+  const {
+    deviceLast20Payloads,
+    getDeviceLast20Payloads,
+    getLatestPayload,
+    updateDeviceLast20Payloads,
+  } = usePayloadStore();
+
+  const [current, setCurrent] = useState<number>(0);
+  const [voltage, setVoltage] = useState<number>(0);
+
+  const [device, setDevice] = useState<Device>();
   // const [updateTimer, setUpdateTimer] = useState(0);
 
   // useEffect(() => {
@@ -32,22 +42,50 @@ const Home = () => {
     if (deviceId) {
       socket.emit("connectDevice", { deviceId });
     }
-  }, [deviceId]);
+
+    const fetchDeviceDetails = async () => {
+      if (deviceId) {
+        getDeviceLast20Payloads(deviceId);
+        const deviceDetails = await getDeviceDetails(deviceId);
+
+        const latestPayload = await getLatestPayload(deviceId);
+
+        if (deviceDetails) {
+          setDevice(deviceDetails);
+        }
+
+        if (latestPayload) {
+          setVoltage(latestPayload.voltage);
+          setCurrent(latestPayload.current);
+        }
+      }
+    };
+
+    fetchDeviceDetails();
+  }, [deviceId, getDeviceDetails, getDeviceLast20Payloads, getLatestPayload]);
 
   // console.log(updateTimer);
   useEffect(() => {
     socket.on(`sensorPayload`, (data) => {
       setCurrent(data.current);
       setVoltage(data.voltage);
+      updateDeviceLast20Payloads(data);
+
       // setUpdateTimer(0);
     });
-  }, []);
+  }, [updateDeviceLast20Payloads]);
 
   const handleGoToNotifications = () => {
     router.push("/notifications");
   };
 
-  const voltageMockData = payload.map((data) => ({ value: data.voltage }));
+  const voltageData = deviceLast20Payloads.map((data) => ({
+    value: data.voltage,
+  }));
+
+  const currentData = deviceLast20Payloads.map((data) => ({
+    value: data.current,
+  }));
 
   return (
     <SafeAreaView className="flex-1 bg-background p-4 gap-4">
@@ -59,7 +97,13 @@ const Home = () => {
             style={{ width: 25, height: 25 }}
           />
 
-          <Text className="text-white text-xl">Brgy Rawis</Text>
+          <ScrollView
+            showsHorizontalScrollIndicator={false}
+            horizontal
+            className="pr-10 max-w-[80%]"
+          >
+            <Text className="text-white text-xl">{`${device?.locationName?.road} ${device?.locationName?.brgy}`}</Text>
+          </ScrollView>
         </View>
 
         <TouchableOpacity onPress={handleGoToNotifications}>
@@ -160,7 +204,7 @@ const Home = () => {
             </View>
 
             <LineChart
-              data={voltageMockData}
+              data={voltageData}
               hideDataPoints
               hideAxesAndRules
               isAnimated
@@ -181,7 +225,7 @@ const Home = () => {
           </View>
         </View>
 
-        {/* Voltage Chart */}
+        {/* current Chart */}
         <View className="gap-4 bg-card_bg rounded-md p-4">
           <View className=" flex-row gap-2 items-end">
             <Text className="text-white text-lg">Current </Text>
@@ -197,7 +241,7 @@ const Home = () => {
             </View>
 
             <LineChart
-              data={voltageMockData}
+              data={currentData}
               hideDataPoints
               hideAxesAndRules
               isAnimated

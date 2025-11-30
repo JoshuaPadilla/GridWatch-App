@@ -3,7 +3,6 @@ import { router } from "expo-router";
 import { useState } from "react";
 import {
   KeyboardAvoidingView,
-  Pressable,
   Text,
   TextInput,
   TouchableOpacity,
@@ -28,10 +27,6 @@ export default function Index() {
     }
   };
 
-  const handleOperatorLogin = () => {
-    router.push("/(operator)/operator_login");
-  };
-
   return (
     <SafeAreaView className="flex-1 items-center justify-center bg-background">
       <KeyboardAvoidingView className="p-4 items-center justify-center w-[80%] gap-4 ">
@@ -51,16 +46,6 @@ export default function Index() {
         >
           <Text>Submit</Text>
         </TouchableOpacity>
-
-        <View className="justify-center items-center flex-row">
-          <Text className="text-white">------------------</Text>
-
-          <Text className="text-white"> or </Text>
-          <Text className="text-white">------------------</Text>
-        </View>
-        <Pressable onPress={handleOperatorLogin} hitSlop={5}>
-          <Text className="text-primary">Login as Operator</Text>
-        </Pressable>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
