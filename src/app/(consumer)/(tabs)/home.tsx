@@ -106,7 +106,13 @@ const Home = () => {
           </ScrollView>
         </View>
 
-        <TouchableOpacity onPress={handleGoToNotifications}>
+        <TouchableOpacity
+          onPress={handleGoToNotifications}
+          className="p-2 items-center justify-center"
+        >
+          <View className="size-6 rounded-b-xl rounded-t-xl bg-primary items-center justify-center absolute z-10 top-0 right-0">
+            <Text className=" text-white ">1</Text>
+          </View>
           <Image source={Icons.notif_icon} style={{ width: 25, height: 25 }} />
         </TouchableOpacity>
       </View>

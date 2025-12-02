@@ -1,10 +1,31 @@
 import { TabIcon } from "@/src/components/tab-icon.component";
 import { Icons } from "@/src/constants/icons.constants";
+import { Notification } from "@/src/interfaces/notification.interface";
+import socket from "@/src/lib/socket";
+import { useNotificationStore } from "@/src/stores/notificationStore";
 import { Tabs } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import React from "react";
+import React, { useEffect } from "react";
 
 const ConsumerTabsLayout = () => {
+  const { addNotification } = useNotificationStore();
+
+  useEffect(() => {
+    // 1. Define the handler function separately
+    const handler = (data: Notification) => {
+      addNotification(data);
+    };
+
+    // 2. Attach the listener
+    socket.on("notification", handler);
+
+    // 3. RETURN CLEANUP FUNCTION
+    return () => {
+      // Remove the listener when the component unmounts or dependencies change
+      socket.off("notification", handler);
+    };
+  }, [addNotification]);
+
   return (
     <>
       <StatusBar style="auto" translucent />
