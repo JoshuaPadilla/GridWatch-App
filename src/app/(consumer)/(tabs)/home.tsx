@@ -1,3 +1,4 @@
+import HomeStatus from "@/src/components/home_status";
 import { Icons } from "@/src/constants/icons.constants";
 import { Device } from "@/src/interfaces/device.interface";
 import socket from "@/src/lib/socket";
@@ -6,7 +7,13 @@ import { usePayloadStore } from "@/src/stores/usePayloadStore";
 import { Image } from "expo-image";
 import { router } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import {
+  ActivityIndicator,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { LineChart } from "react-native-gifted-charts";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -17,12 +24,14 @@ const Home = () => {
     getDeviceLast20Payloads,
     getLatestPayload,
     updateDeviceLast20Payloads,
+    loading,
   } = usePayloadStore();
 
   const [current, setCurrent] = useState<number>(0);
   const [voltage, setVoltage] = useState<number>(0);
 
   const [device, setDevice] = useState<Device>();
+  const [payloadStatus, setPayloadStatus] = useState();
   // const [updateTimer, setUpdateTimer] = useState(0);
 
   // useEffect(() => {
@@ -73,6 +82,16 @@ const Home = () => {
 
       // setUpdateTimer(0);
     });
+
+    socket.on("changeDeviceStatus", (data) => {
+      setDevice((prev) => {
+        // 1. Guard clause: If device doesn't exist yet, do nothing (or return undefined)
+        if (!prev) return prev;
+
+        // 2. Safe to spread because we know prev is defined here
+        return { ...prev, status: data.status };
+      });
+    });
   }, [updateDeviceLast20Payloads]);
 
   const handleGoToNotifications = () => {
@@ -122,42 +141,7 @@ const Home = () => {
         showsVerticalScrollIndicator={false}
       >
         {/* Status */}
-        <View className="w-full bg-card_bg rounded-md p-6 gap-2">
-          <View className="flex-row gap-2 items-center">
-            <Image
-              source={Icons.grid_status}
-              style={{ width: 20, height: 20 }}
-            />
-
-            <Text className="text-white text-md">Grid status</Text>
-          </View>
-
-          <View className="flex-row gap-4 items-center justify-between max-w-[50%] ">
-            <View className="p-2 ">
-              <Image
-                source={Icons.status_good}
-                style={{ width: 100, height: 100 }}
-              />
-            </View>
-
-            <View className="gap-2">
-              <View className="flex-row gap-2  items-center">
-                <View className="p-2 bg-safe rounded-full" />
-                <Text className="text-white text-xl">Stable Voltage</Text>
-              </View>
-
-              <View className="flex-row gap-2  items-center">
-                <View className="p-2 bg-safe rounded-full" />
-                <Text className="text-white text-xl">Stable Current</Text>
-              </View>
-
-              <View className="flex-row gap-2  items-center">
-                <View className="p-2 bg-safe rounded-full" />
-                <Text className="text-white text-xl">Low chance of Outage</Text>
-              </View>
-            </View>
-          </View>
-        </View>
+        <HomeStatus status={device?.status || "no_power"} />
 
         {/* Voltage and Current reading */}
         <View className="flex-row w-full gap-2">
@@ -194,79 +178,89 @@ const Home = () => {
           </View>
         </View>
 
-        {/* Voltage Chart */}
-        <View className="gap-4 bg-card_bg rounded-md p-4">
-          <View className=" flex-row gap-2 items-end">
-            <Text className="text-white text-lg">Voltage </Text>
-            <Text className="text-white/50 text-sm">last updated: 3s ago</Text>
-          </View>
+        {loading ? (
+          <ActivityIndicator size={"large"} />
+        ) : (
+          <>
+            {/* Voltage Chart */}
+            <View className="gap-4 bg-card_bg rounded-md p-4">
+              <View className=" flex-row gap-2 items-end">
+                <Text className="text-white text-lg">Voltage </Text>
+                <Text className="text-white/50 text-sm">
+                  last updated: 3s ago
+                </Text>
+              </View>
 
-          <View className="flex-row ">
-            <View className="absolute left-0 top-0 h-[100px] justify-between items-end">
-              <Text className="text-white text-xs">250</Text>
-              <Text className="text-white text-xs">200</Text>
-              <Text className="text-white text-xs">150</Text>
-              <Text className="text-white text-xs">0</Text>
+              <View className="flex-row ">
+                <View className="absolute left-0 top-0 h-[100px] justify-between items-end">
+                  <Text className="text-white text-xs">250</Text>
+                  <Text className="text-white text-xs">200</Text>
+                  <Text className="text-white text-xs">150</Text>
+                  <Text className="text-white text-xs">0</Text>
+                </View>
+
+                <LineChart
+                  data={voltageData}
+                  hideDataPoints
+                  hideAxesAndRules
+                  isAnimated
+                  thickness={2}
+                  maxValue={255}
+                  curved
+                  color="#359EFF"
+                  adjustToWidth
+                  yAxisColor={"#0d203b"}
+                  stepValue={80}
+                  height={100}
+                  startFillColor="#359EFF70"
+                  endFillColor="#1f293790"
+                  areaChart
+                  yAxisLabelSuffix=" v"
+                  hideYAxisText
+                />
+              </View>
             </View>
 
-            <LineChart
-              data={voltageData}
-              hideDataPoints
-              hideAxesAndRules
-              isAnimated
-              thickness={2}
-              maxValue={255}
-              curved
-              color="#359EFF"
-              adjustToWidth
-              yAxisColor={"#0d203b"}
-              stepValue={80}
-              height={100}
-              startFillColor="#359EFF70"
-              endFillColor="#1f293790"
-              areaChart
-              yAxisLabelSuffix=" v"
-              hideYAxisText
-            />
-          </View>
-        </View>
+            {/* current Chart */}
+            <View className="gap-4 bg-card_bg rounded-md p-4">
+              <View className=" flex-row gap-2 items-end">
+                <Text className="text-white text-lg">Current </Text>
+                <Text className="text-white/50 text-sm">
+                  last updated: 3s ago
+                </Text>
+              </View>
 
-        {/* current Chart */}
-        <View className="gap-4 bg-card_bg rounded-md p-4">
-          <View className=" flex-row gap-2 items-end">
-            <Text className="text-white text-lg">Current </Text>
-            <Text className="text-white/50 text-sm">last updated: 3s ago</Text>
-          </View>
+              <View className="flex-row ">
+                <View className="absolute left-0 top-0 h-[100px] justify-between items-end">
+                  <Text className="text-white text-xs">250</Text>
+                  <Text className="text-white text-xs">200</Text>
+                  <Text className="text-white text-xs">150</Text>
+                  <Text className="text-white text-xs">0</Text>
+                </View>
 
-          <View className="flex-row ">
-            <View className="absolute left-0 top-0 h-[100px] justify-between items-end">
-              <Text className="text-white text-xs">250</Text>
-              <Text className="text-white text-xs">200</Text>
-              <Text className="text-white text-xs">150</Text>
-              <Text className="text-white text-xs">0</Text>
+                <LineChart
+                  data={currentData}
+                  hideDataPoints
+                  hideAxesAndRules
+                  isAnimated
+                  thickness={2}
+                  maxValue={255}
+                  curved
+                  color="#359EFF"
+                  adjustToWidth
+                  yAxisColor={"#0d203b"}
+                  stepValue={80}
+                  height={100}
+                  startFillColor="#359EFF70"
+                  endFillColor="#1f293790"
+                  areaChart
+                  yAxisLabelSuffix=" v"
+                  hideYAxisText
+                />
+              </View>
             </View>
-
-            <LineChart
-              data={currentData}
-              hideDataPoints
-              hideAxesAndRules
-              isAnimated
-              thickness={2}
-              maxValue={255}
-              curved
-              color="#359EFF"
-              adjustToWidth
-              yAxisColor={"#0d203b"}
-              stepValue={80}
-              height={100}
-              startFillColor="#359EFF70"
-              endFillColor="#1f293790"
-              areaChart
-              yAxisLabelSuffix=" v"
-              hideYAxisText
-            />
-          </View>
-        </View>
+          </>
+        )}
       </ScrollView>
     </SafeAreaView>
   );

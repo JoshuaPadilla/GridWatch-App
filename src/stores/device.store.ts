@@ -11,7 +11,6 @@ interface StoreState {
   getDeviceHistory: (deviceId: string) => void;
   setDeviceId: (deviceId: string) => void;
   deviceLast20Payloads: DevicePayload[];
-
   getDeviceDetails: (
     deviceId: string
   ) => Promise<Device | undefined> | undefined;
