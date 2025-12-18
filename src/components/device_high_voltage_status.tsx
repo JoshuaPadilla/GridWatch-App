@@ -1,15 +1,27 @@
-import { Image } from "expo-image";
 import React from "react";
 import { Text, View } from "react-native";
-import { Icons } from "../constants/icons.constants";
+import * as Progress from "react-native-progress";
+import { StatusColor } from "../enum/status_color";
 
-const DeviceHighVoltage = () => {
+interface Props {
+  outagePercentage: number;
+}
+const DeviceHighVoltage = ({ outagePercentage }: Props) => {
   return (
     <View className="flex-row gap-4 items-center justify-between max-w-[50%] ">
-      <View className="p-2 ">
-        <Image
-          source={Icons.status_warning}
-          style={{ width: 100, height: 100 }}
+      <View className="p-2 items-center justify-center">
+        <Text className="absolute font-bold text-white text-3xl">
+          {Math.floor(outagePercentage * 100)}%
+        </Text>
+        <Progress.Circle
+          progress={outagePercentage}
+          size={100}
+          borderWidth={0}
+          thickness={8}
+          strokeCap="round"
+          direction="counter-clockwise"
+          unfilledColor={StatusColor.warningUnfilledColor}
+          color={StatusColor.filledColor}
         />
       </View>
 
