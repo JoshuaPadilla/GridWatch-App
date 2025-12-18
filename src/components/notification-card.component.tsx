@@ -1,18 +1,42 @@
 import { Image } from "expo-image";
+import { router } from "expo-router";
 import React from "react";
 import { Text, TouchableOpacity, View } from "react-native";
+import { NotifCardColor } from "../enum/notif_card_color";
 import { getNotifIcon } from "../helpers/get_notif_icon";
+import { getTimeAgo } from "../helpers/get_time_ago";
 import { Notification } from "../interfaces/notification.interface";
+import { useNotificationStore } from "../stores/notificationStore";
 
 interface Props {
   notification: Notification;
 }
 
 const NotificationCard = ({ notification }: Props) => {
+  const { markedAsRead, setSelectedNotif, subtractUnreadNotif } =
+    useNotificationStore();
+
   const icon = getNotifIcon(notification.status);
 
+  const bg_color = notification.read
+    ? NotifCardColor.notRead
+    : NotifCardColor.read;
+
+  const handleViewNotif = () => {
+    subtractUnreadNotif();
+    markedAsRead(notification._id);
+    setSelectedNotif(notification);
+    router.push("/(consumer)/(screens)/view_notification");
+  };
+
+  const timeAgo = getTimeAgo(notification.createdAt.toString());
+
   return (
-    <TouchableOpacity className="bg-card_bg p-4 rounded-md gap-2">
+    <TouchableOpacity
+      className="p-4 rounded-md gap-2"
+      style={{ backgroundColor: bg_color }}
+      onPress={handleViewNotif}
+    >
       {/* Header */}
       <View className="flex-row justify-between items-center">
         <View className="flex-row gap-4 items-center">
@@ -23,7 +47,7 @@ const NotificationCard = ({ notification }: Props) => {
           </Text>
         </View>
 
-        <Text className="text-sm text-white/50">1 day ago</Text>
+        <Text className="text-xs text-white/50">{timeAgo}</Text>
       </View>
 
       {/* Body */}

@@ -8,11 +8,12 @@ import { StatusBar } from "expo-status-bar";
 import React, { useEffect } from "react";
 
 const ConsumerTabsLayout = () => {
-  const { addNotification } = useNotificationStore();
+  const { addNotification, addUnreadNotif } = useNotificationStore();
 
   useEffect(() => {
     // 1. Define the handler function separately
     const handler = (data: Notification) => {
+      addUnreadNotif();
       addNotification(data);
     };
 

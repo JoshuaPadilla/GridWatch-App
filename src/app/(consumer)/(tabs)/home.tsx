@@ -3,6 +3,7 @@ import { Icons } from "@/src/constants/icons.constants";
 import { Device } from "@/src/interfaces/device.interface";
 import socket from "@/src/lib/socket";
 import { useDeviceStore } from "@/src/stores/device.store";
+import { useNotificationStore } from "@/src/stores/notificationStore";
 import { usePayloadStore } from "@/src/stores/usePayloadStore";
 import { Image } from "expo-image";
 import { router } from "expo-router";
@@ -18,7 +19,8 @@ import { LineChart } from "react-native-gifted-charts";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const Home = () => {
-  const { deviceId, getDeviceDetails } = useDeviceStore();
+  const { deviceId, getDeviceDetails, setSelectedDevice } = useDeviceStore();
+  const { unreadNotif, getUnreadNotifCount } = useNotificationStore();
   const {
     deviceLast20Payloads,
     getDeviceLast20Payloads,
@@ -55,12 +57,15 @@ const Home = () => {
     const fetchDeviceDetails = async () => {
       if (deviceId) {
         getDeviceLast20Payloads(deviceId);
+        getUnreadNotifCount(deviceId);
+
         const deviceDetails = await getDeviceDetails(deviceId);
 
         const latestPayload = await getLatestPayload(deviceId);
 
         if (deviceDetails) {
           setDevice(deviceDetails);
+          setSelectedDevice(deviceDetails);
         }
 
         if (latestPayload) {
@@ -71,7 +76,14 @@ const Home = () => {
     };
 
     fetchDeviceDetails();
-  }, [deviceId, getDeviceDetails, getDeviceLast20Payloads, getLatestPayload]);
+  }, [
+    deviceId,
+    getDeviceDetails,
+    getDeviceLast20Payloads,
+    getLatestPayload,
+    setSelectedDevice,
+    getUnreadNotifCount,
+  ]);
 
   // console.log(updateTimer);
   useEffect(() => {
@@ -129,9 +141,11 @@ const Home = () => {
           onPress={handleGoToNotifications}
           className="p-2 items-center justify-center"
         >
-          <View className="size-6 rounded-b-xl rounded-t-xl bg-primary items-center justify-center absolute z-10 top-0 right-0">
-            <Text className=" text-white ">1</Text>
-          </View>
+          {unreadNotif && (
+            <View className="size-6 rounded-b-xl rounded-t-xl bg-primary items-center justify-center absolute z-10 top-0 right-0">
+              <Text className=" text-white ">{unreadNotif}</Text>
+            </View>
+          )}
           <Image source={Icons.notif_icon} style={{ width: 25, height: 25 }} />
         </TouchableOpacity>
       </View>
@@ -232,9 +246,9 @@ const Home = () => {
 
               <View className="flex-row ">
                 <View className="absolute left-0 top-0 h-[100px] justify-between items-end">
-                  <Text className="text-white text-xs">250</Text>
-                  <Text className="text-white text-xs">200</Text>
-                  <Text className="text-white text-xs">150</Text>
+                  <Text className="text-white text-xs">40</Text>
+                  <Text className="text-white text-xs">30</Text>
+                  <Text className="text-white text-xs">15</Text>
                   <Text className="text-white text-xs">0</Text>
                 </View>
 
@@ -244,7 +258,7 @@ const Home = () => {
                   hideAxesAndRules
                   isAnimated
                   thickness={2}
-                  maxValue={255}
+                  maxValue={40}
                   curved
                   color="#359EFF"
                   adjustToWidth

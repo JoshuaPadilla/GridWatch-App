@@ -8,17 +8,20 @@ interface StoreState {
   loading: boolean;
   deviceId: string | undefined;
   deviceHistory: History[];
+  currentDevice: Device | null;
   getDeviceHistory: (deviceId: string) => void;
   setDeviceId: (deviceId: string) => void;
   deviceLast20Payloads: DevicePayload[];
   getDeviceDetails: (
     deviceId: string
   ) => Promise<Device | undefined> | undefined;
+  setSelectedDevice: (device: Device) => void;
 }
 
 export const useDeviceStore = create<StoreState>((set) => ({
   loading: false,
   deviceId: undefined,
+  currentDevice: null,
   deviceHistory: [],
   deviceLast20Payloads: [],
   getDeviceHistory: async (deviceId) => {
@@ -62,5 +65,8 @@ export const useDeviceStore = create<StoreState>((set) => ({
 
   setDeviceId: (deviceId) => {
     set({ deviceId: deviceId });
+  },
+  setSelectedDevice: (device) => {
+    set({ currentDevice: device });
   },
 }));
